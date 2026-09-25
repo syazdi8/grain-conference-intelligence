@@ -2,7 +2,7 @@
 
 This tool helps the sales team:
 - choose conferences by ICP fit;
-- plan who covers what;
+- see coverage for the next 12 months: unowned high-fit events, trip clusters, and sample coverage assignments;
 - capture people on the show floor in seconds;
 - recognise repeat encounters across conferences, with an evidence-backed read of each relationship;
 - hand contacts to HubSpot.
@@ -15,7 +15,7 @@ This tool helps the sales team:
 |---|---|
 | `index.html`, `styles.css`, `js/` | The app: plain HTML/CSS/JavaScript, no framework, no build step |
 | `js/scoring.js` | ICP fit: four 0–3 ratings, weights 35/30/25/10, tiers A ≥ 75 / B 55–74 / C < 55 |
-| `js/planning.js` | Coverage flags: unowned A-tier events; A/B events in the same city within 14 days ("combine the trip?") |
+| `js/planning.js` | Coverage flags: unowned A-tier events; A/B events in the same city within 14 days ("Trip cluster", a signal for the sales lead, not a recommendation) |
 | `js/matching.js` | Deterministic contact matching: same email → linked; same name + company → strong; nickname/initial/typo → possible; same name + new company → "same person, new company?" |
 | `js/relationship.js` | Relationship state from rules (Warming / Stalled / Low intent / Early) and the nudge sized to it |
 | `js/exporter.js` | The HubSpot-ready CSV |

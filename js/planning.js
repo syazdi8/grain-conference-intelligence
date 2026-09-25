@@ -22,7 +22,7 @@ export function unownedATier(conferences, owners, today) {
   return conferences.filter((c) => c.tier === 'A' && inWindow(c, today) && !owners[c.id]);
 }
 
-// A/B events in the same city whose dates are within 14 days of each other → "combine the trip?".
+// A/B events in the same city whose dates are within 14 days of each other → "Trip cluster".
 // Prototype limit: same city only; short-haul neighbours are not modelled.
 export function clusters(conferences, today) {
   const eligible = conferences
