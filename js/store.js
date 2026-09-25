@@ -25,9 +25,9 @@ export function freshWorkspace(seed) {
 }
 
 // Returns { ws, notice }. A new seed version triggers an offer to reset rather than silently mixing data.
-export function loadWorkspace(seed) {
+export function loadWorkspace(seed, storage = globalThis.localStorage) {
   let raw = null;
-  try { raw = localStorage.getItem(KEY); } catch { return { ws: freshWorkspace(seed), notice: 'storage' }; }
+  try { raw = storage.getItem(KEY); } catch { return { ws: freshWorkspace(seed), notice: 'storage' }; }
   if (!raw) return { ws: freshWorkspace(seed), notice: null };
   try {
     const ws = JSON.parse(raw);

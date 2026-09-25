@@ -130,26 +130,14 @@ test('AI read guard drops evidence that cites encounters the contact does not ha
   assert.equal(validateRead({ summary: '' }, []), null);
 });
 
-// Swaps in an in-memory localStorage for one test, then restores whatever the runtime had.
-function withStorage(items, fn) {
-  const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
-  const mem = { ...items };
-  const mock = { getItem: (k) => mem[k] ?? null, setItem: (k, v) => { mem[k] = String(v); }, removeItem: (k) => { delete mem[k]; } };
-  Object.defineProperty(globalThis, 'localStorage', { value: mock, configurable: true, writable: true });
-  try { return fn(mem); } finally {
-    if (original) Object.defineProperty(globalThis, 'localStorage', original); else delete globalThis.localStorage;
-  }
-}
-
 test('the app always runs on the fixed demo date, and a saved real-date flag is dropped on load', () => {
   assert.equal(today(seed), '2026-10-19');
   assert.equal('useRealDate' in freshWorkspace(seed), false);
   const stuck = { ...freshWorkspace(seed), useRealDate: true }; // a browser left in real-date mode by the retired toggle
-  withStorage({ 'grain-conference-intel:workspace': JSON.stringify(stuck) }, () => {
-    const { ws, notice } = loadWorkspace(seed);
-    assert.equal(notice, null);
-    assert.equal('useRealDate' in ws, false);
-  });
+  const storage = { getItem: (k) => (k === 'grain-conference-intel:workspace' ? JSON.stringify(stuck) : null) };
+  const { ws, notice } = loadWorkspace(seed, storage);
+  assert.equal(notice, null);
+  assert.equal('useRealDate' in ws, false);
 });
 
 test('static check: no real-date toggle and no 12-month filter left in the UI', () => {
