@@ -496,7 +496,7 @@ function aiPanel(c, v) {
   if (cache && cache.sig === sig) {
     const r = cache.result;
     return `<div class="panel ai">${head}
-      ${r.disagreement ? `<div class="disagree"><strong>Notes point a different way from the rules:</strong> ${esc(r.disagreement)}</div>` : ''}
+      ${r.disagreement ? `<div class="disagree"><strong>Notes point a different way from the rules:</strong> ${esc(r.disagreement)} <button type="button" class="link-btn" data-action="override-open" data-id="${c.id}">Review state →</button></div>` : ''}
       ${r.notEnoughInfo ? '<div class="thin">Not enough information to read this relationship yet.</div>' : ''}
       <p>${esc(r.summary)}</p>
       ${r.evidence.length ? `<ul class="evidence">${r.evidence.map((x) => { const e = v.encs.find((y) => y.id === x.encounterId); return `<li><span class="muted small">${esc(fmtDate(e.date))} · ${esc(confName(e))}:</span> ${esc(x.point)}</li>`; }).join('')}</ul>` : ''}
