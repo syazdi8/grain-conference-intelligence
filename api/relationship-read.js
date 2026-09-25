@@ -22,6 +22,7 @@ How to write the read:
 - Summary: 2-3 plain sentences a busy rep can act on. Interpret what the notes say about intent, objections, timing and who is involved.
 - Evidence: up to 3 points, each tied to one encounter by its id, restating what that encounter's note or outcome actually says.
 - Suggested action: exactly one concrete next action, at most 25 words, sized to the situation (don't push a low-intent contact into meetings).
+- Treat the supplied Today date as authoritative when interpreting timing. Never suggest waiting until a date, season or period that has already passed; if a note says "after summer" and Today is later, treat that window as already reached.
 - The state label is set by the rules. Do not relabel it. If the notes point a different way from the rules' state, set disagreement.flag to true and explain in one sentence (for example, notes mention approved budget while the rules say Low intent).
 - A job or company change is a fact. Don't treat it as good or bad news by itself, and don't assume what happened at the old company beyond what the notes say.
 
