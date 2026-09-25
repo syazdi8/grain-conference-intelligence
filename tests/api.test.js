@@ -71,3 +71,72 @@ test('provider error → 502 without leaking the key', async () => {
   assert.equal(res.code, 502);
   assert.doesNotMatch(JSON.stringify(res.body), /secret-key-value/);
 });
+
+// Regression (25 Sep): the exact payload the browser sent for Dana after the live job-change capture
+// (Quellan Payments → Toys, outcome Interested). The live read failed with "not in the expected format".
+const danaJobChange = {
+  today: '2026-10-19',
+  contact: { firstName: 'Dana', company: 'Toys', title: 'head',
+    previousCompanies: [{ company: 'Quellan Payments', title: 'Head of Partnerships', until: '2026-10-19' }] },
+  state: { label: 'Stalled', reasons: ['Commitment dropped (Next step agreed → Interested)'], override: null },
+  encounters: [
+    { id: 'e01', date: '2026-03-18', conference: 'Merchant Payments Ecosystem (MPE) 2026', rep: 'Sofia Marín', company: 'Quellan Payments',
+      outcome: 'Interested', nextStep: null, note: "Runs partnerships at Quellan. Their merchants in Poland and Czechia want to charge in local currency, but Quellan doesn't want to carry the FX risk. Asked for a one-pager on rate lock." },
+    { id: 'e02', date: '2026-06-03', conference: 'Money20/20 Europe 2026', rep: 'Daniel Brooks', company: 'Quellan Payments',
+      outcome: 'Next step agreed', nextStep: { text: "Intro call with Quellan's payments team", status: 'Done', due: '' },
+      note: "Read the one-pager. Wants to test rate lock on PLN and CZK checkout with 2–3 large merchants. The share of the rate-lock fee is what got her CFO's attention." },
+    { id: 'emuh3b8l2jpq7', date: '2026-10-19', conference: 'Money20/20 USA 2026', rep: 'Jordan Ellis', company: 'Toys',
+      outcome: 'Interested', nextStep: null, note: '' },
+  ],
+};
+const goodRead = JSON.stringify({ summary: 'Dana moved from Quellan Payments to Toys.', evidence: [{ encounter_id: 'emuh3b8l2jpq7', point: 'Met at Toys; interested.' }],
+  suggested_action: 'Ask what her role at Toys covers.', disagreement: { flag: false, note: '' }, not_enough_information: false });
+const quiet = async (fn) => { const orig = console.error; console.error = () => {}; try { await fn(); } finally { console.error = orig; } };
+
+test('job change: the payload passes sanitize and the request keeps old vs current company apart', () => {
+  const req = buildRequest(sanitize(danaJobChange), 'claude-sonnet-5');
+  const text = req.messages[0].content;
+  assert.match(text, /Contact: Dana, head at Toys/);
+  assert.match(text, /Previously: Head of Partnerships at Quellan Payments \(until 2026-10-19\)/);
+  assert.match(text, /\[e02\].*company then: Quellan Payments/);
+  assert.match(text, /\[emuh3b8l2jpq7\].*company then: Toys/);
+  assert.match(text, /<note>\(no note\)<\/note>/);
+});
+
+test('job change: a reply cut off by max_tokens is reported as cut off, not as a format problem', async () => {
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ model: 'claude-sonnet-5', stop_reason: 'max_tokens',
+    usage: { output_tokens: 700 }, content: [{ type: 'thinking', thinking: '', signature: 'sig' }, { type: 'text', text: '{"summary":"Dana moved from Quel' }] }) });
+  const res = fakeRes();
+  await quiet(() => handler({ method: 'POST', body: danaJobChange }, res));
+  assert.equal(res.code, 502);
+  assert.equal(res.body.error, 'AI read was cut off before it finished');
+  assert.equal(res.body.stopReason, 'max_tokens');
+  assert.equal(res.body.outputTokens, 700);
+  assert.deepEqual(res.body.blocks, ['thinking', 'text']);
+});
+
+test('a refusal is reported as a refusal, and malformed data is never accepted', async () => {
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ stop_reason: 'refusal', usage: { output_tokens: 12 }, content: [{ type: 'text', text: 'I can’t help with that.' }] }) });
+  let res = fakeRes();
+  await quiet(() => handler({ method: 'POST', body: danaJobChange }, res));
+  assert.equal(res.code, 502);
+  assert.equal(res.body.error, 'AI declined to write this read');
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: 'not json' }] }) });
+  res = fakeRes();
+  await quiet(() => handler({ method: 'POST', body: danaJobChange }, res));
+  assert.equal(res.code, 502);
+  assert.equal(res.body.error, 'AI response was not in the expected format');
+});
+
+test('job change: a finished reply with a thinking block first is parsed from the text block', async () => {
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ model: 'claude-sonnet-5', stop_reason: 'end_turn', usage: { output_tokens: 1234 },
+    content: [{ type: 'thinking', thinking: '', signature: 'sig' }, { type: 'text', text: goodRead }] }) });
+  const res = fakeRes();
+  await handler({ method: 'POST', body: danaJobChange }, res);
+  assert.equal(res.code, 200);
+  assert.equal(res.body.evidence[0].encounterId, 'emuh3b8l2jpq7');
+  assert.equal(res.body.outputTokens, 1234);
+});

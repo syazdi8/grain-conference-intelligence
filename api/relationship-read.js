@@ -179,9 +179,25 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: `AI provider returned ${r.status}` });
     }
     const data = await r.json();
+    // Metadata only (never content or the key): enough to tell why a 200 reply can't be used.
+    const meta = {
+      stopReason: data.stop_reason || '',
+      outputTokens: data.usage?.output_tokens ?? null,
+      blocks: (Array.isArray(data.content) ? data.content : []).map((b) => b.type),
+      elapsedMs: Date.now() - started,
+    };
+    // Structured output is only guaranteed when the reply finished normally. A reply cut off by
+    // max_tokens, or a refusal, can break the schema, so name those cases instead of calling them a format problem.
+    if (meta.stopReason === 'max_tokens' || meta.stopReason === 'refusal') {
+      console.error('AI read unusable', meta);
+      return res.status(502).json({ error: meta.stopReason === 'max_tokens' ? 'AI read was cut off before it finished' : 'AI declined to write this read', ...meta });
+    }
     const read = parseResponse(data);
-    if (!read) return res.status(502).json({ error: 'AI response was not in the expected format' });
-    return res.status(200).json({ ...read, model: data.model || model, elapsedMs: Date.now() - started });
+    if (!read) {
+      console.error('AI response not in the expected format', meta);
+      return res.status(502).json({ error: 'AI response was not in the expected format', ...meta });
+    }
+    return res.status(200).json({ ...read, model: data.model || model, elapsedMs: meta.elapsedMs, outputTokens: meta.outputTokens });
   } catch (err) {
     return res.status(504).json({ error: err.name === 'AbortError' ? 'AI read timed out' : 'Could not reach the AI provider' });
   } finally {
