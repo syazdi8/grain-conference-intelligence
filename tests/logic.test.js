@@ -44,6 +44,14 @@ test('a bad CSV row becomes a warning, not a crash', () => {
   assert.match(warnings[0], /Merchant Payments Ecosystem.*not 0–3.*skipped/);
 });
 
+test('public conference data carries no internal working notes', () => {
+  // Evidence lines are shown in the app ("Why this tier"); every text field ships in the public repo.
+  const internal = /\b[DC]\d{1,2}\b|\bShay\b|\bClaude\b|fetch tool/;
+  for (const row of parseCSV(csv).slice(1)) {
+    for (const cell of row) assert.doesNotMatch(cell, internal, `${row[0]}: ${cell}`);
+  }
+});
+
 test('every seeded contact lands in its designed state at the demo date', () => {
   const expected = { dana: 'Warming', oliver: 'Warming', tom: 'Low intent', marco: 'Low intent', priya: 'Stalled', sven: 'Stalled',
     emma: 'Early', chris: 'Early', hannah: 'Early', ryan: 'Early', nadia: 'Early', alex: 'Early', david: 'Early', grace: 'Early', johanna: 'Early' };
