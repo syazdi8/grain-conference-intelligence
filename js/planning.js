@@ -46,3 +46,10 @@ export function currentConference(conferences, owners, userId, today) {
   const live = conferences.filter((c) => isHappening(c, today));
   return live.find((c) => owners[c.id] === userId) || live[0] || null;
 }
+
+// Capture records "I met this person at this conference", dated today. So only conferences happening today
+// can be chosen: never one that hasn't started. Logging after an event would need an explicit encounter date;
+// that is future work, and the app never invents one.
+export function captureOptions(conferences, today) {
+  return conferences.filter((c) => isHappening(c, today)).sort((a, b) => a.name.localeCompare(b.name));
+}

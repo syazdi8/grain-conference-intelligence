@@ -1,7 +1,7 @@
 // UI: one render function per screen, built from the deterministic core modules. Hash routes (#/plan …).
 import { esc, fmtDate, fmtDay, fmtRange, monthLabel, addMonths, uid, todayReal } from './util.js';
 import { DIMENSIONS, TIERS, displayScore } from './scoring.js';
-import { planningWindow, inWindow, unownedATier, clusters, currentConference, isHappening } from './planning.js';
+import { planningWindow, inWindow, unownedATier, clusters, currentConference, isHappening, captureOptions } from './planning.js';
 import { findMatches, LEVELS, sameCompany } from './matching.js';
 import { computeState, effectiveState, nudgeFor, byDate, OUTCOMES, STATES, STEP_STATUSES } from './relationship.js';
 import { buildHubspotCsv, exportWarnings } from './exporter.js';
@@ -216,7 +216,7 @@ function renderPlan() {
 
 // ---------- Capture ----------
 function captureConference() {
-  if (!S.draft.conferenceId) {
+  if (!captureOptions(S.conferences, today()).some((c) => c.id === S.draft.conferenceId)) {
     const cur = currentConference(S.conferences, S.ws.owners, S.ws.currentUser, today());
     S.draft.conferenceId = cur?.id || '';
   }
@@ -227,17 +227,19 @@ function renderCapture() {
   const d = S.draft;
   const conf = captureConference();
   const t = today();
-  const live = S.conferences.filter((c) => isHappening(c, t));
-  const others = S.conferences.filter((c) => !isHappening(c, t)).sort((a, b) => a.name.localeCompare(b.name));
+  const live = captureOptions(S.conferences, t);
+  if (!live.length) return `
+  <section class="pad capture">
+    <p><strong>No conference is happening on ${esc(fmtDay(t))}.</strong></p>
+    <p class="muted small">Capture logs people you meet at a conference that's on today. Logging after an event isn't in this prototype.</p>
+  </section>`;
   const companies = [...new Set(S.ws.contacts.flatMap((c) => [c.company, ...(c.history || []).map((h) => h.company)]))].sort();
   const mine = conf ? S.ws.encounters.filter((e) => e.conferenceId === conf.id && e.edition === conf.edition && e.rep === S.ws.currentUser).slice().reverse().sort((a, b) => b.date.localeCompare(a.date)) : [];
   return `
   <section class="pad capture">
     <div class="capture-head">
       <label>At <select data-action="capture-conf" aria-label="Conference">
-        <option value="">Pick the conference you're at</option>
-        ${live.length ? `<optgroup label="Happening today">${live.map((c) => `<option value="${c.id}" ${c.id === d.conferenceId ? 'selected' : ''}>${esc(c.name)} ${esc(c.edition)}</option>`).join('')}</optgroup>` : ''}
-        <optgroup label="Other events">${others.map((c) => `<option value="${c.id}" ${c.id === d.conferenceId ? 'selected' : ''}>${esc(c.name)} ${esc(c.edition)}</option>`).join('')}</optgroup>
+        <optgroup label="Happening today">${live.map((c) => `<option value="${c.id}" ${c.id === d.conferenceId ? 'selected' : ''}>${esc(c.name)} ${esc(c.edition)}</option>`).join('')}</optgroup>
       </select></label>
       <span class="muted small">as ${esc(repName(S.ws.currentUser))} · ${esc(fmtDay(t))}</span>
     </div>
@@ -317,8 +319,8 @@ function updateMatches() {
 function saveCapture() {
   const d = S.draft;
   const conf = confById(d.conferenceId);
-  if (!conf || !d.name.trim() || !d.company.trim() || !d.outcome) return;
   const t = today();
+  if (!conf || !isHappening(conf, t) || !d.name.trim() || !d.company.trim() || !d.outcome) return; // never log an event that isn't on today
   let c;
   let message;
   if (d.link) {

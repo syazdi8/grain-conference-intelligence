@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { loadConferences, icpScore, tierOf } from '../js/scoring.js';
 import { computeState, nudgeFor, openSteps } from '../js/relationship.js';
 import { findMatches, sameCompany } from '../js/matching.js';
-import { unownedATier, clusters, currentConference, inWindow } from '../js/planning.js';
+import { unownedATier, clusters, currentConference, inWindow, captureOptions } from '../js/planning.js';
 import { buildHubspotCsv, exportWarnings, exportableEmail } from '../js/exporter.js';
 import { parseCSV } from '../js/csv.js';
 import { validateRead } from '../js/ai.js';
@@ -158,4 +158,13 @@ test('static check: no real-date toggle and no 12-month filter left in the UI', 
   assert.doesNotMatch(html, /<button[^>]*id="date-chip"/);
   assert.doesNotMatch(app, /useRealDate|use real date|data-filter="window"|Next 12 months/);
   assert.match(app, /Demo date · /);
+});
+
+test('capture only offers conferences happening on the app date, never one that has not started', () => {
+  const { conferences } = loadConferences(csv);
+  assert.deepEqual(captureOptions(conferences, TODAY).map((c) => c.id), ['money2020-usa']);
+  assert.deepEqual(captureOptions(conferences, '2026-10-17'), []); // day before Money20/20 USA opens
+  assert.deepEqual(captureOptions(conferences, '2026-10-22'), []); // day after it ends: no late logging in the prototype
+  assert.deepEqual(captureOptions(conferences, '2027-05-11').map((c) => c.id), ['marketplace-risk', 'saastr']); // two at once: the rep picks
+  for (const c of conferences.filter((x) => x.start > TODAY)) assert.ok(!captureOptions(conferences, TODAY).includes(c), c.id);
 });
