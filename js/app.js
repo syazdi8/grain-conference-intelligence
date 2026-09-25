@@ -141,7 +141,7 @@ function renderConference(id) {
   const cl = clusters(S.conferences, t).filter((x) => x.a.id === id || x.b.id === id);
   const flags = [];
   if (c.tier === 'A' && inWindow(c, t) && !S.ws.owners[c.id]) flags.push('<div class="flag flag-a">High ICP fit, no owner yet. Decide whether to cover it.</div>');
-  for (const x of cl) { const o = x.a.id === id ? x.b : x.a; flags.push(`<div class="flag">Combine the trip? <a href="#/conference/${o.id}">${esc(o.name)} ${esc(o.edition)}</a> is in ${esc(x.city)} ${x.gapDays} days apart (${esc(fmtRange(o.start, o.end))}).</div>`); }
+  for (const x of cl) { const o = x.a.id === id ? x.b : x.a; flags.push(`<div class="flag">Trip cluster: <a href="#/conference/${o.id}">${esc(o.name)} ${esc(o.edition)}</a> is in ${esc(x.city)} ${x.gapDays} days apart (${esc(fmtRange(o.start, o.end))}).</div>`); }
   return `
   <section class="pad narrow">
     <a href="#/conferences" class="back">← Conferences</a>
@@ -208,7 +208,7 @@ function renderPlan() {
     <div class="flags">
       <h2>Possible under-investment</h2>
       ${unowned.length ? unowned.map((c) => `<div class="flag flag-a">${tierBadge('A')} <a href="#/conference/${c.id}">${esc(c.name)} ${esc(c.edition)}</a> · ${esc(fmtRange(c.start, c.end))}, ${esc(c.city)}. <strong>High ICP fit, no owner yet.</strong> ${ownerSelect(c.id, 'compact')}</div>`).join('') : '<p class="muted small">Every A-tier event in the window has an owner.</p>'}
-      <h2>Combine the trip?</h2>
+      <h2>Trip cluster</h2>
       ${cl.length ? cl.map((x) => `<div class="flag">${tierBadge(x.a.tier)} <a href="#/conference/${x.a.id}">${esc(x.a.name)}</a> (${esc(fmtRange(x.a.start, x.a.end))}, ${S.ws.owners[x.a.id] ? esc(repName(S.ws.owners[x.a.id])) : 'no owner'}) and ${tierBadge(x.b.tier)} <a href="#/conference/${x.b.id}">${esc(x.b.name)}</a> (${esc(fmtRange(x.b.start, x.b.end))}, ${S.ws.owners[x.b.id] ? esc(repName(S.ws.owners[x.b.id])) : 'no owner'}): both in ${esc(x.city)}, ${x.gapDays} days apart.</div>`).join('') : '<p class="muted small">No A/B events in the same city within 14 days.</p>'}
     </div>
     <h2>By month</h2>
