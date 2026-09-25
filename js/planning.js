@@ -41,12 +41,12 @@ export function clusters(conferences, today) {
   return out;
 }
 
-export const BUSY_WINDOW_DAYS = 21; // "within 3 weeks"
+export const BUSY_WINDOW_DAYS = 21; // a rolling 3-week window: starts at most 21 days after the window's first start
 export const BUSY_MIN_EVENTS = 3;
 
-// "Busy stretch": 3+ Tier A/B events whose start dates fall within 3 weeks of each other, wherever they are.
-// It flags concentrated coverage demand; combined travel is Trip cluster's job. Overlapping windows merge into
-// one stretch. Tier C stays out, as in Trip cluster.
+// "Busy stretch": a rolling 3-week window holding 3+ Tier A/B event starts, wherever the events are.
+// Overlapping qualifying windows are grouped into one stretch, so a stretch can span more than 3 weeks.
+// It flags concentrated coverage demand; combined travel is Trip cluster's job. Tier C stays out, as in Trip cluster.
 export function busyStretches(conferences, today) {
   const ab = conferences
     .filter((c) => (c.tier === 'A' || c.tier === 'B') && inWindow(c, today))

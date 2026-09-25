@@ -221,8 +221,8 @@ function renderPlan() {
       <p class="muted small">A/B events in the same city within 14 days: travel that could plausibly be combined.</p>
       ${cl.length ? cl.map((x) => `<div class="flag">${tierBadge(x.a.tier)} <a href="#/conference/${x.a.id}">${esc(x.a.name)}</a> (${esc(fmtRange(x.a.start, x.a.end))}, ${S.ws.owners[x.a.id] ? esc(repName(S.ws.owners[x.a.id])) : 'no owner'}) and ${tierBadge(x.b.tier)} <a href="#/conference/${x.b.id}">${esc(x.b.name)}</a> (${esc(fmtRange(x.b.start, x.b.end))}, ${S.ws.owners[x.b.id] ? esc(repName(S.ws.owners[x.b.id])) : 'no owner'}): both in ${esc(x.city)}, ${x.gapDays} days apart.</div>`).join('') : '<p class="muted small">No A/B events in the same city within 14 days.</p>'}
       <h2>Busy stretch</h2>
-      <p class="muted small">3+ Tier A/B events starting within 3 weeks of each other, wherever they are: concentrated coverage demand, not a travel plan.</p>
-      ${busy.length ? busy.map((s) => `<div class="flag"><strong>${esc(fmtRange(s.start, s.end))}</strong> · ${s.events.length} A/B events: ${s.events.map((c) => `${tierBadge(c.tier)} <a href="#/conference/${c.id}">${esc(c.name)}</a> (${esc(c.city)}, ${ownerOf(c)})`).join(' · ')}</div>`).join('') : '<p class="muted small">No 3-week period with 3 or more A/B events.</p>'}
+      <p class="muted small">3+ Tier A/B events starting in any rolling 3-week window, wherever they are. Overlapping windows are grouped into one busy stretch, so a stretch can run longer than 3 weeks. It shows where coverage demand piles up; it isn't a travel plan.</p>
+      ${busy.length ? busy.map((s) => `<div class="flag"><strong>${esc(fmtRange(s.start, s.end))}</strong> · ${s.events.length} A/B events: ${s.events.map((c) => `${tierBadge(c.tier)} <a href="#/conference/${c.id}">${esc(c.name)}</a> (${esc(c.city)}, ${ownerOf(c)})`).join(' · ')}</div>`).join('') : '<p class="muted small">No rolling 3-week window with 3 or more Tier A/B events.</p>'}
     </div>
     <h2>By month</h2>
     <div class="months">${rows}</div><h2>Sample coverage assignments</h2>

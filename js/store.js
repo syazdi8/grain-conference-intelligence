@@ -25,9 +25,11 @@ export function freshWorkspace(seed) {
 }
 
 // Returns { ws, notice }. A new seed version triggers an offer to reset rather than silently mixing data.
-export function loadWorkspace(seed, storage = globalThis.localStorage) {
+// `storage` is only for tests. The browser's localStorage is looked up inside the try, because in a browser
+// that blocks storage even reading the localStorage property throws.
+export function loadWorkspace(seed, storage) {
   let raw = null;
-  try { raw = storage.getItem(KEY); } catch { return { ws: freshWorkspace(seed), notice: 'storage' }; }
+  try { raw = (storage ?? globalThis.localStorage).getItem(KEY); } catch { return { ws: freshWorkspace(seed), notice: 'storage' }; }
   if (!raw) return { ws: freshWorkspace(seed), notice: null };
   try {
     const ws = JSON.parse(raw);

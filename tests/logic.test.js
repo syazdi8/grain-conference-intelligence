@@ -10,6 +10,7 @@ import { buildHubspotCsv, exportWarnings, exportableEmail } from '../js/exporter
 import { parseCSV } from '../js/csv.js';
 import { validateRead } from '../js/ai.js';
 import { today, freshWorkspace, loadWorkspace } from '../js/store.js';
+import { daysBetween } from '../js/util.js';
 
 const csv = readFileSync(new URL('../data/conferences.csv', import.meta.url), 'utf8');
 const seed = JSON.parse(readFileSync(new URL('../data/seed.json', import.meta.url), 'utf8'));
@@ -140,6 +141,17 @@ test('the app always runs on the fixed demo date, and a saved real-date flag is 
   assert.equal('useRealDate' in ws, false);
 });
 
+test('blocked storage still loads a fresh workspace with the "storage" notice', () => {
+  const blocked = (storage) => {
+    const { ws, notice } = loadWorkspace(seed, storage);
+    assert.equal(notice, 'storage');
+    assert.deepEqual(ws, freshWorkspace(seed));
+  };
+  blocked({ getItem: () => { throw new Error('SecurityError: storage is blocked'); } }); // getItem throws
+  blocked({ get getItem() { throw new Error('SecurityError: storage is blocked'); } }); // the accessor itself throws
+  // A browser whose window.localStorage property throws on access is checked in a real browser (not mocked here).
+});
+
 test('static check: no real-date toggle and no 12-month filter left in the UI', () => {
   const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
@@ -157,17 +169,27 @@ test('capture only offers conferences happening on the app date, never one that 
   for (const c of conferences.filter((x) => x.start > TODAY)) assert.ok(!captureOptions(conferences, TODAY).includes(c), c.id);
 });
 
-test('busy stretch: 3+ A/B events starting within 3 weeks, wherever they are; Tier C never counts', () => {
+test('busy stretch: 3+ A/B starts in a rolling 3-week window, overlapping windows grouped; Tier C never counts', () => {
   const { conferences } = loadConferences(csv);
   const ids = (list) => list.map((x) => [x.start, x.end, x.events.map((c) => c.id)]);
   // On the demo date: one stretch across Las Vegas, Macao and Fort Lauderdale. Trip cluster is unchanged.
-  assert.deepEqual(ids(busyStretches(conferences, TODAY)), [['2026-10-18', '2026-11-19', ['money2020-usa', 'iata-wfs', 'afp', 'phocuswright']]]);
+  const real = busyStretches(conferences, TODAY);
+  assert.deepEqual(ids(real), [['2026-10-18', '2026-11-19', ['money2020-usa', 'iata-wfs', 'afp', 'phocuswright']]]);
+  // Two overlapping windows (18 Oct–8 Nov and 28 Oct–17 Nov starts) are grouped, so the stretch runs past 3 weeks.
+  const starts = real[0].events.map((c) => c.start);
+  assert.ok(daysBetween(starts[0], starts[starts.length - 1]) > 21);
   assert.deepEqual(clusters(conferences, TODAY).map((x) => [x.a.id, x.b.id, x.gapDays]), [['mpe', 'itb-berlin', 5]]);
-  // Synthetic events to pin the rule: a start 21 days after the first still counts, 22 doesn't; Tier C is ignored.
+  // Synthetic events to pin the rule: a start 21 days after the window's first start still counts, 22 doesn't.
   const base = conferences.find((c) => c.id === 'mpe');
   const ev = (id, start, tier = 'B') => ({ ...base, id, name: id, tier, start, end: start });
   assert.equal(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-14'), ev('c', '2027-01-25')], TODAY).length, 1);
   assert.equal(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-14'), ev('c', '2027-01-26')], TODAY).length, 0);
+  // Overlapping windows group into one stretch; windows that don't overlap stay separate.
+  assert.deepEqual(ids(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-14'), ev('c', '2027-01-24'), ev('d', '2027-02-03')], TODAY)),
+    [['2027-01-04', '2027-02-03', ['a', 'b', 'c', 'd']]]);
+  assert.equal(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-05'), ev('c', '2027-01-06'),
+    ev('d', '2027-04-04'), ev('e', '2027-04-05'), ev('f', '2027-04-06')], TODAY).length, 2);
+  // Tier C is ignored.
   assert.equal(busyStretches([ev('a', '2027-01-04', 'C'), ev('b', '2027-01-05', 'C'), ev('c', '2027-01-06', 'C')], TODAY).length, 0);
   assert.equal(busyStretches([ev('a', '2027-01-04', 'C'), ev('b', '2027-01-05'), ev('c', '2027-01-06')], TODAY).length, 0);
 });
