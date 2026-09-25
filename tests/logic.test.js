@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { loadConferences, icpScore, tierOf } from '../js/scoring.js';
 import { computeState, nudgeFor, openSteps } from '../js/relationship.js';
 import { findMatches, sameCompany } from '../js/matching.js';
-import { unownedATier, clusters, busyStretches, currentConference, inWindow, captureOptions } from '../js/planning.js';
+import { unownedATier, clusters, busyStretches, currentConference, inWindow, captureOptions, pastEditionContacts } from '../js/planning.js';
 import { buildHubspotCsv, exportWarnings, exportableEmail } from '../js/exporter.js';
 import { parseCSV } from '../js/csv.js';
 import { validateRead } from '../js/ai.js';
@@ -182,4 +182,21 @@ test('busy stretch: 3+ A/B events starting within 3 weeks, wherever they are; Ti
   assert.equal(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-14'), ev('c', '2027-01-26')], TODAY).length, 0);
   assert.equal(busyStretches([ev('a', '2027-01-04', 'C'), ev('b', '2027-01-05', 'C'), ev('c', '2027-01-06', 'C')], TODAY).length, 0);
   assert.equal(busyStretches([ev('a', '2027-01-04', 'C'), ev('b', '2027-01-05'), ev('c', '2027-01-06')], TODAY).length, 0);
+});
+
+test('relationships from past editions: people met at earlier editions, never the listed one, with today\'s state', () => {
+  const { conferences } = loadConferences(csv);
+  const past = (id) => pastEditionContacts(conferences.find((c) => c.id === id), seed.encounters);
+  const summary = (id) => {
+    const { contactIds, editions } = past(id);
+    const states = {};
+    for (const cid of contactIds) { const s = computeState(encOf(cid), TODAY).state; states[s] = (states[s] || 0) + 1; }
+    return { people: [...contactIds].sort(), editions, states };
+  };
+  assert.deepEqual(summary('itb-berlin'), { people: ['david', 'oliver', 'priya', 'sven'], editions: ['2026'], states: { Warming: 1, Stalled: 2, Early: 1 } });
+  assert.deepEqual(summary('money2020-europe'), { people: ['dana', 'emma', 'marco', 'nadia', 'tom'], editions: ['2025', '2026'], states: { Warming: 1, 'Low intent': 2, Early: 2 } });
+  assert.deepEqual(summary('phocuswright'), { people: ['grace', 'oliver'], editions: ['2025'], states: { Warming: 1, Early: 1 } });
+  // Money20/20 USA 2026 is on now: its own encounters are not "past", only the 2025 edition counts.
+  assert.deepEqual(summary('money2020-usa').people, ['emma', 'tom']);
+  assert.deepEqual(past('saastr'), { contactIds: [], editions: [] });
 });

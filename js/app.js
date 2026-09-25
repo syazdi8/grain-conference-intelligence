@@ -1,7 +1,7 @@
 // UI: one render function per screen, built from the deterministic core modules. Hash routes (#/plan …).
 import { esc, fmtDate, fmtDay, fmtRange, monthLabel, addMonths, uid, todayReal } from './util.js';
 import { DIMENSIONS, TIERS, displayScore } from './scoring.js';
-import { planningWindow, inWindow, unownedATier, clusters, busyStretches, currentConference, isHappening, captureOptions } from './planning.js';
+import { planningWindow, inWindow, unownedATier, clusters, busyStretches, currentConference, isHappening, captureOptions, pastEditionContacts } from './planning.js';
 import { findMatches, LEVELS, sameCompany } from './matching.js';
 import { computeState, effectiveState, nudgeFor, byDate, OUTCOMES, STATES, STEP_STATUSES } from './relationship.js';
 import { buildHubspotCsv, exportWarnings } from './exporter.js';
@@ -138,6 +138,11 @@ function renderConference(id) {
   const flags = [];
   if (c.tier === 'A' && inWindow(c, t) && !S.ws.owners[c.id]) flags.push('<div class="flag flag-a">High ICP fit, no owner yet. Decide whether to cover it.</div>');
   for (const x of cl) { const o = x.a.id === id ? x.b : x.a; flags.push(`<div class="flag">Trip cluster: <a href="#/conference/${o.id}">${esc(o.name)} ${esc(o.edition)}</a> is in ${esc(x.city)} ${x.gapDays} days apart (${esc(fmtRange(o.start, o.end))}).</div>`); }
+  const hist = pastEditionContacts(c, S.ws.encounters);
+  const known = hist.contactIds.map(contactById).filter(Boolean).map(contactView)
+    .sort((a, b) => STATES.indexOf(a.eff.state) - STATES.indexOf(b.eff.state) || a.c.name.localeCompare(b.c.name));
+  const eds = hist.editions.length > 1 ? `${hist.editions.slice(0, -1).join(', ')} and ${hist.editions[hist.editions.length - 1]} editions` : `${hist.editions[0]} edition`;
+  const byState = STATES.map((s) => [s, known.filter((v) => v.eff.state === s).length]).filter(([, n]) => n);
   return `
   <section class="pad narrow">
     <a href="#/conferences" class="back">← Conferences</a>
@@ -160,6 +165,12 @@ function renderConference(id) {
         <td class="small">${esc(r.evidence)}</td></tr>`; }).join('')}</tbody>
     </table>
     <p class="muted small">Score = (35×Segment + 30×Persona + 25×FX + 10×Concentration) ÷ 3, from ratings of 0–3. The ratings are analyst judgments from public sources; the math is fixed.</p>
+    <h2>Relationships from past editions</h2>
+    ${known.length ? `
+    <p class="small"><strong>${known.length} contact${known.length === 1 ? '' : 's'} met at the ${esc(eds)}</strong> · ${byState.map(([s, n]) => `${stateBadge(s)} ${n}`).join(' ')}</p>
+    <ul class="past-list">${known.map((v) => `<li><a href="#/contact/${v.c.id}">${esc(v.c.name)}</a> <span class="muted">${esc(v.c.company)}</span> ${stateBadge(v.eff.state, v.eff.source === 'override')}</li>`).join('')}</ul>
+    <p class="muted small">Where these relationships stand today. Not a list of confirmed attendees.</p>`
+    : '<p class="muted small">No relationship history yet.</p>'}
     <h2>Coverage</h2>
     <label class="row-label">Owner ${ownerSelect(c.id)}</label>
     <h2>Sources</h2>

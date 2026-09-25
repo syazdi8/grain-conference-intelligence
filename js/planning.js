@@ -62,6 +62,16 @@ export function busyStretches(conferences, today) {
   return out.map((events) => ({ events, start: events[0].start, end: events.reduce((m, c) => (c.end > m ? c.end : m), events[0].end) }));
 }
 
+// Contacts we met at earlier editions of this event series (any edition other than the listed one).
+// It says who we know from before. It says nothing about who attends this time, and nothing about pipeline.
+export function pastEditionContacts(conf, encounters) {
+  const past = encounters.filter((e) => e.conferenceId === conf.id && e.edition !== conf.edition);
+  return {
+    contactIds: [...new Set(past.map((e) => e.contactId))],
+    editions: [...new Set(past.map((e) => e.edition))].sort(),
+  };
+}
+
 // The event the capture screen should pre-select: one happening today, preferring the user's own.
 export function currentConference(conferences, owners, userId, today) {
   const live = conferences.filter((c) => isHappening(c, today));

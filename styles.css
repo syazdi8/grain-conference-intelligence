@@ -133,6 +133,7 @@ select.compact { padding: .15rem .3rem; font-size: .8rem; }
 .match .q button { min-height: 40px; }
 .linked { margin-top: .4rem; color: var(--a); font-weight: 600; }
 .today-list { list-style: none; padding: 0; }
+.past-list { list-style: none; padding: 0; margin: .3rem 0; display: flex; flex-wrap: wrap; gap: .35rem 1rem; font-size: .9rem; }
 .today-list li { padding: .45rem 0; border-bottom: 1px solid var(--line); }
 .outcome-tag { font-size: .75rem; background: var(--accent-2); color: var(--accent); padding: .05rem .4rem; border-radius: 6px; white-space: nowrap; }
 
