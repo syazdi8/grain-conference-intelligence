@@ -103,6 +103,15 @@ test('job change: the payload passes sanitize and the request keeps old vs curre
   assert.match(text, /<note>\(no note\)<\/note>/);
 });
 
+test('token budget leaves room for thinking but stays inside the 25 s timeout', () => {
+  // Root cause of the Dana job-change failure: 700 tokens ran out mid-JSON once thinking was counted.
+  // Finished live reads used up to 631 tokens; at ~80-85 tokens/s, 2000 would risk the timeout.
+  const req = buildRequest(sanitize(danaJobChange), 'claude-sonnet-5');
+  assert.ok(req.max_tokens >= 1500, `max_tokens ${req.max_tokens} is too tight for thinking + the read`);
+  assert.ok(req.max_tokens <= 2000, `max_tokens ${req.max_tokens} risks the 25 s timeout`);
+  assert.equal(req.output_config.format.type, 'json_schema');
+});
+
 test('job change: a reply cut off by max_tokens is reported as cut off, not as a format problem', async () => {
   process.env.ANTHROPIC_API_KEY = 'test-key';
   globalThis.fetch = async () => ({ ok: true, json: async () => ({ model: 'claude-sonnet-5', stop_reason: 'max_tokens',

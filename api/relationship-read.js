@@ -8,6 +8,10 @@ const MAX_ENCOUNTERS = 30;
 const MAX_NOTE = 1500;
 const MAX_TEXT = 300;
 const TIMEOUT_MS = 25000;
+// Sonnet 5 thinks by default and thinking counts toward max_tokens. Measured live (25 Sep): finished reads used
+// 258-631 output tokens at ~80-85 tokens/s, and 700 cut off Dana's job-change read and Oliver's seeded read.
+// 1600 gives ~2.5x headroom and still finishes (~20 s worst case) inside the 25 s timeout.
+const MAX_TOKENS = 1600;
 
 const OUTCOMES = new Set(['No clear intent', 'Interested', 'Next step agreed']);
 const STATES = new Set(['Early', 'Warming', 'Stalled', 'Low intent']);
@@ -127,7 +131,7 @@ export function buildRequest(input, model) {
   }
   return {
     model,
-    max_tokens: 700,
+    max_tokens: MAX_TOKENS,
     system: SYSTEM_PROMPT,
     output_config: { format: { type: 'json_schema', schema: SCHEMA } },
     messages: [{ role: 'user', content: lines.join('\n') }],
