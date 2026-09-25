@@ -439,11 +439,16 @@ function renderProfile(id) {
   const c = contactById(id);
   if (!c) return '<section class="pad"><p>Contact not found. <a href="#/contacts">Back</a></p></section>';
   const v = contactView(c);
+  const aiCache = S.ws.aiCache[c.id];
+const suggestedOverrideReason =
+  aiCache && aiCache.sig === signature(c, v.encs, v.rule)
+    ? (aiCache.result?.disagreement || '')
+    : '';
   const prev = (c.history || []).slice().reverse();
   const overrideForm = S.overrideFor === c.id ? `
     <div class="override-form">
       <label>New state <select id="ov-state">${STATES.filter((s) => s !== v.rule.state).map((s) => `<option>${s}</option>`).join('')}</select></label>
-      <label>Reason <input id="ov-reason" placeholder="Why the rules are wrong here (required)"></label>
+      <label>Reason <input id="ov-reason" value="${esc(suggestedOverrideReason)}" placeholder="Why the rules are wrong here (required)"></label>
       <button type="button" class="primary" data-action="override-save" data-id="${c.id}">Save override</button>
       <button type="button" data-action="override-cancel">Cancel</button>
     </div>` : '';
