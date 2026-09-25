@@ -49,7 +49,7 @@ test('happy path with a fake API: parses the JSON text block and reports model a
   globalThis.fetch = async (url, opts) => {
     sent = { url, headers: opts.headers, body: JSON.parse(opts.body) };
     return { ok: true, json: async () => ({ model: 'claude-sonnet-5', content: [{ type: 'text', text: JSON.stringify({
-      summary: 'Keep light.', evidence: [{ encounter_id: 'e03', point: 'Asked for a deck, no use case.' }],
+      summary: 'Tom asked for a deck but never named a use case. Keep it light.', evidence: [{ encounter_id: 'e03', point: 'Asked for a deck, no use case.' }],
       suggested_action: 'Send a short quarterly update.', disagreement: { flag: false, note: '' }, not_enough_information: false }) }] }) };
   };
   const res = fakeRes();
@@ -137,6 +137,25 @@ test('a refusal is reported as a refusal, and malformed data is never accepted',
   await quiet(() => handler({ method: 'POST', body: danaJobChange }, res));
   assert.equal(res.code, 502);
   assert.equal(res.body.error, 'AI response was not in the expected format');
+});
+
+test('a schema-valid but unfinished reply is rejected, not shown as a read', async () => {
+  // Live 25 Sep, Marco: stop_reason end_turn, yet summary "Marco has been" and "x" for the action and disagreement.
+  process.env.ANTHROPIC_API_KEY = 'test-key';
+  const reply = (fields) => async () => ({ ok: true, json: async () => ({ stop_reason: 'end_turn', usage: { output_tokens: 90 },
+    content: [{ type: 'thinking', thinking: '', signature: 'sig' }, { type: 'text', text: JSON.stringify({ ...JSON.parse(goodRead), ...fields }) }] }) });
+  for (const fields of [
+    { summary: 'Marco has been', suggested_action: 'x', disagreement: { flag: true, note: 'x' } },
+    { suggested_action: '' },
+    { disagreement: { flag: true, note: ' ' } },
+  ]) {
+    globalThis.fetch = reply(fields);
+    const res = fakeRes();
+    await quiet(() => handler({ method: 'POST', body: danaJobChange }, res));
+    assert.equal(res.code, 502);
+    assert.equal(res.body.error, 'AI response was not in the expected format');
+    assert.equal(res.body.stopReason, 'end_turn');
+  }
 });
 
 test('job change: a finished reply with a thinking block first is parsed from the text block', async () => {

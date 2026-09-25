@@ -143,6 +143,10 @@ export function parseResponse(data) {
   let i;
   try { i = JSON.parse(block?.text ?? ''); } catch { return null; }
   if (!i || typeof i.summary !== 'string') return null;
+  // Schema-valid but unfinished replies happen rarely (live 25 Sep, Marco: summary "Marco has been", action "x").
+  // Floors sit far below real reads (shortest seen: summary 219, action 96, disagreement note 122 chars).
+  const blank = (v, min) => String(v ?? '').trim().length < min;
+  if (blank(i.summary, 40) || blank(i.suggested_action, 15) || (i.disagreement?.flag && blank(i.disagreement.note, 15))) return null;
   return {
     summary: i.summary,
     evidence: (Array.isArray(i.evidence) ? i.evidence : []).map((x) => ({ encounterId: String(x.encounter_id ?? ''), point: String(x.point ?? '') })),
