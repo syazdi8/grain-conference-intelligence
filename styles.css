@@ -34,8 +34,7 @@ input[type="checkbox"] { width: auto; }
 .proto { font-weight: 400; font-size: .75rem; background: #3a4557; padding: .1rem .4rem; border-radius: 6px; margin-left: .3rem; }
 .ctx { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; font-size: .85rem; }
 .ctx select { padding: .25rem .4rem; font-size: .85rem; color: var(--ink); background: #fff; }
-.chip { background: #2d3645; color: #fff; border-color: #4a5566; font-size: .8rem; padding: .25rem .55rem; }
-.chip u { color: #b9c7d8; margin-left: .3rem; }
+.chip { background: #2d3645; color: #fff; border: 1px solid #4a5566; border-radius: 8px; font-size: .8rem; padding: .25rem .55rem; white-space: nowrap; }
 #nav { display: flex; gap: .2rem; padding: .2rem .6rem 0; overflow-x: auto; }
 #nav a { color: #c9d3df; text-decoration: none; padding: .5rem .75rem; border-bottom: 3px solid transparent; white-space: nowrap; }
 #nav a.active { color: #fff; border-bottom-color: #6fd3b3; font-weight: 600; }

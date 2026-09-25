@@ -10,14 +10,14 @@ import * as store from './store.js';
 
 const S = {
   conferences: [], warnings: [], seed: null, ws: null, notice: null,
-  filters: { q: '', tier: 'all', vertical: 'all', region: 'all', window: true, sort: 'tier' },
+  filters: { q: '', tier: 'all', vertical: 'all', region: 'all', sort: 'tier' },
   contactFilter: 'all', contactQuery: '', selected: new Set(), exportCheck: null,
   draft: null, lastSaved: null, overrideFor: null, aiPending: {}, aiErrors: {},
 };
 const view = document.getElementById('view');
 
 // ---------- helpers ----------
-const today = () => store.today(S.ws, S.seed);
+const today = () => store.today(S.seed);
 const confById = (id) => S.conferences.find((c) => c.id === id);
 const confName = (e) => `${confById(e.conferenceId)?.name || e.conferenceId} ${e.edition}`;
 const rep = (id) => S.seed.reps.find((r) => r.id === id);
@@ -67,9 +67,7 @@ function renderChrome() {
   const { page } = route();
   document.querySelectorAll('#nav a').forEach((a) => a.classList.toggle('active', a.dataset.route === page || (a.dataset.route === 'conferences' && page === 'conference') || (a.dataset.route === 'contacts' && page === 'contact')));
   document.getElementById('user').innerHTML = S.seed.reps.map((r) => `<option value="${r.id}" ${r.id === S.ws.currentUser ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
-  document.getElementById('date-chip').innerHTML = S.ws.useRealDate
-    ? `Real date · ${esc(fmtDay(today()))} <u>use demo date</u>`
-    : `Demo date · ${esc(fmtDay(today()))} ${esc(today().slice(0, 4))} <u>use real date</u>`;
+  document.getElementById('date-chip').textContent = `Demo date · ${fmtDay(today())} ${today().slice(0, 4)}`;
   const b = [];
   if (S.notice === 'storage') b.push('This browser is blocking local storage, so your changes will be lost on reload.');
   if (S.notice === 'seed-changed') b.push('The demo data has been updated since your last visit. <button class="link-btn" data-action="reset">Reset to load it</button>');
@@ -93,8 +91,7 @@ function renderConferences() {
   const verticals = [...new Set(S.conferences.map((c) => c.vertical))].sort();
   const regions = [...new Set(S.conferences.map((c) => c.region))].sort();
   const q = f.q.trim().toLowerCase();
-  let list = S.conferences.filter((c) => (!f.window || !c.start || inWindow(c, t))
-    && (f.tier === 'all' || c.tier === f.tier) && (f.vertical === 'all' || c.vertical === f.vertical)
+  let list = S.conferences.filter((c) => (f.tier === 'all' || c.tier === f.tier) && (f.vertical === 'all' || c.vertical === f.vertical)
     && (f.region === 'all' || c.region === f.region)
     && (!q || `${c.name} ${c.city} ${c.country} ${c.vertical}`.toLowerCase().includes(q)));
   list = list.sort(f.sort === 'date' ? (a, b) => (a.start || '9').localeCompare(b.start || '9') : (a, b) => a.tier.localeCompare(b.tier) || b.score - a.score);
@@ -111,7 +108,6 @@ function renderConferences() {
       <select data-filter="vertical" aria-label="Vertical">${opt('all', f.vertical, 'All verticals')}${verticals.map((v) => opt(v, f.vertical)).join('')}</select>
       <select data-filter="region" aria-label="Region">${opt('all', f.region, 'All regions')}${regions.map((v) => opt(v, f.region)).join('')}</select>
       <select data-filter="sort" aria-label="Sort">${opt('tier', f.sort, 'Sort: tier, then score')}${opt('date', f.sort, 'Sort: date')}</select>
-      <label class="check"><input type="checkbox" data-filter="window" ${f.window ? 'checked' : ''}> Next 12 months</label>
     </div>
     <p class="muted small">${list.length} events · A ${count('A')} · B ${count('B')} · C ${count('C')}</p>
     <div class="cards">
@@ -670,12 +666,6 @@ document.getElementById('user').addEventListener('change', (ev) => {
   S.ws.currentUser = ev.target.value;
   S.draft = freshDraft();
   S.lastSaved = null;
-  save();
-  render();
-});
-document.getElementById('date-chip').addEventListener('click', () => {
-  S.ws.useRealDate = !S.ws.useRealDate;
-  S.draft = freshDraft();
   save();
   render();
 });

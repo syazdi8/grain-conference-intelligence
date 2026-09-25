@@ -29,6 +29,7 @@ This tool helps the sales team:
 - **Conferences and the seed** come from the files above.
 - **Everything you change** (captures, owners, overrides, next-step status, exports, AI reads) is saved in **your browser only**. It's a per-browser sandbox, so reviewers never see each other's changes.
 - **Reset demo data** (at the bottom of every page) restores the seed.
+- **The app runs on a fixed demo date** (Mon 19 Oct 2026, `demoDate` in the seed) so the demo is reproducible; the conference list is a researched sample, not a live feed. Production would use today's date.
 - In production this would be a shared database behind a login.
 
 ## Run it locally

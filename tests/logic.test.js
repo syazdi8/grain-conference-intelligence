@@ -9,6 +9,7 @@ import { unownedATier, clusters, currentConference, inWindow } from '../js/plann
 import { buildHubspotCsv, exportWarnings, exportableEmail } from '../js/exporter.js';
 import { parseCSV } from '../js/csv.js';
 import { validateRead } from '../js/ai.js';
+import { today, freshWorkspace, loadWorkspace } from '../js/store.js';
 
 const csv = readFileSync(new URL('../data/conferences.csv', import.meta.url), 'utf8');
 const seed = JSON.parse(readFileSync(new URL('../data/seed.json', import.meta.url), 'utf8'));
@@ -127,4 +128,34 @@ test('AI read guard drops evidence that cites encounters the contact does not ha
   assert.equal(r.evidence.length, 1);
   assert.equal(r.droppedEvidence, 1);
   assert.equal(validateRead({ summary: '' }, []), null);
+});
+
+// Swaps in an in-memory localStorage for one test, then restores whatever the runtime had.
+function withStorage(items, fn) {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  const mem = { ...items };
+  const mock = { getItem: (k) => mem[k] ?? null, setItem: (k, v) => { mem[k] = String(v); }, removeItem: (k) => { delete mem[k]; } };
+  Object.defineProperty(globalThis, 'localStorage', { value: mock, configurable: true, writable: true });
+  try { return fn(mem); } finally {
+    if (original) Object.defineProperty(globalThis, 'localStorage', original); else delete globalThis.localStorage;
+  }
+}
+
+test('the app always runs on the fixed demo date, and a saved real-date flag is dropped on load', () => {
+  assert.equal(today(seed), '2026-10-19');
+  assert.equal('useRealDate' in freshWorkspace(seed), false);
+  const stuck = { ...freshWorkspace(seed), useRealDate: true }; // a browser left in real-date mode by the retired toggle
+  withStorage({ 'grain-conference-intel:workspace': JSON.stringify(stuck) }, () => {
+    const { ws, notice } = loadWorkspace(seed);
+    assert.equal(notice, null);
+    assert.equal('useRealDate' in ws, false);
+  });
+});
+
+test('static check: no real-date toggle and no 12-month filter left in the UI', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /<button[^>]*id="date-chip"/);
+  assert.doesNotMatch(app, /useRealDate|use real date|data-filter="window"|Next 12 months/);
+  assert.match(app, /Demo date · /);
 });

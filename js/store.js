@@ -1,7 +1,6 @@
 // The workspace: everything a user changes lives in this browser only (a per-browser sandbox).
 // Reference data (data/conferences.csv) and the seed (data/seed.json) come from the repo.
 import { loadConferences } from './scoring.js';
-import { todayReal } from './util.js';
 
 const KEY = 'grain-conference-intel:workspace';
 
@@ -17,7 +16,6 @@ export function freshWorkspace(seed) {
   const copy = JSON.parse(JSON.stringify(seed));
   return {
     seedVersion: seed.version,
-    useRealDate: false,
     currentUser: seed.defaultUser,
     owners: copy.owners,
     contacts: copy.contacts,
@@ -33,6 +31,7 @@ export function loadWorkspace(seed) {
   if (!raw) return { ws: freshWorkspace(seed), notice: null };
   try {
     const ws = JSON.parse(raw);
+    delete ws.useRealDate; // left by the retired real-date toggle; ignored so no browser stays off the demo date
     if (ws.seedVersion !== seed.version) return { ws, notice: 'seed-changed' };
     return { ws, notice: null };
   } catch {
@@ -48,6 +47,8 @@ export function clearWorkspace() {
   try { localStorage.removeItem(KEY); } catch { /* storage unavailable: nothing to clear */ }
 }
 
-export function today(ws, seed) {
-  return ws.useRealDate ? todayReal() : seed.demoDate;
+// The prototype always runs on the fixed demo date in the seed, so the demo is reproducible.
+// A production version would use today's date.
+export function today(seed) {
+  return seed.demoDate;
 }
