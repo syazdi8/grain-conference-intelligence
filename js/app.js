@@ -447,7 +447,10 @@ const suggestedOverrideReason =
   const prev = (c.history || []).slice().reverse();
   const overrideForm = S.overrideFor === c.id ? `
     <div class="override-form">
-      <label>New state <select id="ov-state">${STATES.filter((s) => s !== v.rule.state).map((s) => `<option>${s}</option>`).join('')}</select></label>
+      <label>New state <select id="ov-state">
+  <option value="" selected disabled>Choose state…</option>
+  ${STATES.filter((s) => s !== v.rule.state).map((s) => `<option>${s}</option>`).join('')}
+</select></label>
       <label>Reason <input id="ov-reason" value="${esc(suggestedOverrideReason)}" placeholder="Why the rules are wrong here (required)"></label>
       <button type="button" class="primary" data-action="override-save" data-id="${c.id}">Save override</button>
       <button type="button" data-action="override-cancel">Cancel</button>
@@ -627,10 +630,12 @@ view.addEventListener('click', (ev) => {
     'export-one': () => startExportOne(el.dataset.id),
     'override-open': () => { S.overrideFor = el.dataset.id; render(); },
     'override-cancel': () => { S.overrideFor = null; render(); },
-    'override-save': () => {
-      const reason = document.getElementById('ov-reason').value.trim();
-      if (!reason) { toast('Add a short reason for the override'); return; }
-      contactById(el.dataset.id).override = { state: document.getElementById('ov-state').value, reason, by: S.ws.currentUser, date: today() };
+   'override-save': () => {
+  const state = document.getElementById('ov-state').value;
+  const reason = document.getElementById('ov-reason').value.trim();
+  if (!state) { toast('Choose a new state'); return; }
+  if (!reason) { toast('Add a short reason for the override'); return; }
+  contactById(el.dataset.id).override = { state, reason, by: S.ws.currentUser, date: today() };
       S.overrideFor = null; save(); render();
     },
     'override-clear': () => { contactById(el.dataset.id).override = null; save(); render(); },
