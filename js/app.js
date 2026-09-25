@@ -179,7 +179,9 @@ function renderPlan() {
   const cl = clusters(S.conferences, t);
   const inW = S.conferences.filter((c) => inWindow(c, t)).sort((a, b) => a.start.localeCompare(b.start));
   const months = [];
-  for (let i = 0; i < 12; i++) months.push(addMonths(`${t.slice(0, 7)}-01`, i).slice(0, 7));
+  for (let m = `${t.slice(0, 7)}-01`; m < w.end; m = addMonths(m, 1)) {
+  months.push(m.slice(0, 7));
+}
   const rows = months.map((m) => {
     const evs = inW.filter((c) => (c.start < t ? t : c.start).slice(0, 7) === m);
     return `<div class="month"><div class="month-label">${esc(monthLabel(`${m}-01`))}</div><div class="month-events">${evs.map((c) => `
