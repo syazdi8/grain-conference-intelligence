@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { loadConferences, icpScore, tierOf } from '../js/scoring.js';
 import { computeState, nudgeFor, openSteps } from '../js/relationship.js';
 import { findMatches, sameCompany } from '../js/matching.js';
-import { unownedATier, clusters, currentConference, inWindow, captureOptions } from '../js/planning.js';
+import { unownedATier, clusters, busyStretches, currentConference, inWindow, captureOptions } from '../js/planning.js';
 import { buildHubspotCsv, exportWarnings, exportableEmail } from '../js/exporter.js';
 import { parseCSV } from '../js/csv.js';
 import { validateRead } from '../js/ai.js';
@@ -167,4 +167,19 @@ test('capture only offers conferences happening on the app date, never one that 
   assert.deepEqual(captureOptions(conferences, '2026-10-22'), []); // day after it ends: no late logging in the prototype
   assert.deepEqual(captureOptions(conferences, '2027-05-11').map((c) => c.id), ['marketplace-risk', 'saastr']); // two at once: the rep picks
   for (const c of conferences.filter((x) => x.start > TODAY)) assert.ok(!captureOptions(conferences, TODAY).includes(c), c.id);
+});
+
+test('busy stretch: 3+ A/B events starting within 3 weeks, wherever they are; Tier C never counts', () => {
+  const { conferences } = loadConferences(csv);
+  const ids = (list) => list.map((x) => [x.start, x.end, x.events.map((c) => c.id)]);
+  // On the demo date: one stretch across Las Vegas, Macao and Fort Lauderdale. Trip cluster is unchanged.
+  assert.deepEqual(ids(busyStretches(conferences, TODAY)), [['2026-10-18', '2026-11-19', ['money2020-usa', 'iata-wfs', 'afp', 'phocuswright']]]);
+  assert.deepEqual(clusters(conferences, TODAY).map((x) => [x.a.id, x.b.id, x.gapDays]), [['mpe', 'itb-berlin', 5]]);
+  // Synthetic events to pin the rule: a start 21 days after the first still counts, 22 doesn't; Tier C is ignored.
+  const base = conferences.find((c) => c.id === 'mpe');
+  const ev = (id, start, tier = 'B') => ({ ...base, id, name: id, tier, start, end: start });
+  assert.equal(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-14'), ev('c', '2027-01-25')], TODAY).length, 1);
+  assert.equal(busyStretches([ev('a', '2027-01-04'), ev('b', '2027-01-14'), ev('c', '2027-01-26')], TODAY).length, 0);
+  assert.equal(busyStretches([ev('a', '2027-01-04', 'C'), ev('b', '2027-01-05', 'C'), ev('c', '2027-01-06', 'C')], TODAY).length, 0);
+  assert.equal(busyStretches([ev('a', '2027-01-04', 'C'), ev('b', '2027-01-05'), ev('c', '2027-01-06')], TODAY).length, 0);
 });

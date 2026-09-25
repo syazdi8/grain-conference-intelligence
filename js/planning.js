@@ -41,6 +41,27 @@ export function clusters(conferences, today) {
   return out;
 }
 
+export const BUSY_WINDOW_DAYS = 21; // "within 3 weeks"
+export const BUSY_MIN_EVENTS = 3;
+
+// "Busy stretch": 3+ Tier A/B events whose start dates fall within 3 weeks of each other, wherever they are.
+// It flags concentrated coverage demand; combined travel is Trip cluster's job. Overlapping windows merge into
+// one stretch. Tier C stays out, as in Trip cluster.
+export function busyStretches(conferences, today) {
+  const ab = conferences
+    .filter((c) => (c.tier === 'A' || c.tier === 'B') && inWindow(c, today))
+    .sort((a, b) => a.start.localeCompare(b.start) || a.name.localeCompare(b.name));
+  const out = [];
+  for (const first of ab) {
+    const group = ab.filter((c) => c.start >= first.start && daysBetween(first.start, c.start) <= BUSY_WINDOW_DAYS);
+    if (group.length < BUSY_MIN_EVENTS) continue;
+    const last = out[out.length - 1];
+    if (last && last.includes(first)) group.forEach((c) => { if (!last.includes(c)) last.push(c); });
+    else out.push(group);
+  }
+  return out.map((events) => ({ events, start: events[0].start, end: events.reduce((m, c) => (c.end > m ? c.end : m), events[0].end) }));
+}
+
 // The event the capture screen should pre-select: one happening today, preferring the user's own.
 export function currentConference(conferences, owners, userId, today) {
   const live = conferences.filter((c) => isHappening(c, today));

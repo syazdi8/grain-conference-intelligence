@@ -1,7 +1,7 @@
 // UI: one render function per screen, built from the deterministic core modules. Hash routes (#/plan …).
 import { esc, fmtDate, fmtDay, fmtRange, monthLabel, addMonths, uid, todayReal } from './util.js';
 import { DIMENSIONS, TIERS, displayScore } from './scoring.js';
-import { planningWindow, inWindow, unownedATier, clusters, currentConference, isHappening, captureOptions } from './planning.js';
+import { planningWindow, inWindow, unownedATier, clusters, busyStretches, currentConference, isHappening, captureOptions } from './planning.js';
 import { findMatches, LEVELS, sameCompany } from './matching.js';
 import { computeState, effectiveState, nudgeFor, byDate, OUTCOMES, STATES, STEP_STATUSES } from './relationship.js';
 import { buildHubspotCsv, exportWarnings } from './exporter.js';
@@ -173,6 +173,8 @@ function renderPlan() {
   const w = planningWindow(t);
   const unowned = unownedATier(S.conferences, S.ws.owners, t);
   const cl = clusters(S.conferences, t);
+  const busy = busyStretches(S.conferences, t);
+  const ownerOf = (c) => (S.ws.owners[c.id] ? esc(repName(S.ws.owners[c.id])) : 'no owner');
   const inW = S.conferences.filter((c) => inWindow(c, t)).sort((a, b) => a.start.localeCompare(b.start));
   const months = [];
   for (let m = `${t.slice(0, 7)}-01`; m < w.end; m = addMonths(m, 1)) {
@@ -205,7 +207,11 @@ function renderPlan() {
       <h2>Possible under-investment</h2>
       ${unowned.length ? unowned.map((c) => `<div class="flag flag-a">${tierBadge('A')} <a href="#/conference/${c.id}">${esc(c.name)} ${esc(c.edition)}</a> · ${esc(fmtRange(c.start, c.end))}, ${esc(c.city)}. <strong>High ICP fit, no owner yet.</strong> ${ownerSelect(c.id, 'compact')}</div>`).join('') : '<p class="muted small">Every A-tier event in the window has an owner.</p>'}
       <h2>Trip cluster</h2>
+      <p class="muted small">A/B events in the same city within 14 days: travel that could plausibly be combined.</p>
       ${cl.length ? cl.map((x) => `<div class="flag">${tierBadge(x.a.tier)} <a href="#/conference/${x.a.id}">${esc(x.a.name)}</a> (${esc(fmtRange(x.a.start, x.a.end))}, ${S.ws.owners[x.a.id] ? esc(repName(S.ws.owners[x.a.id])) : 'no owner'}) and ${tierBadge(x.b.tier)} <a href="#/conference/${x.b.id}">${esc(x.b.name)}</a> (${esc(fmtRange(x.b.start, x.b.end))}, ${S.ws.owners[x.b.id] ? esc(repName(S.ws.owners[x.b.id])) : 'no owner'}): both in ${esc(x.city)}, ${x.gapDays} days apart.</div>`).join('') : '<p class="muted small">No A/B events in the same city within 14 days.</p>'}
+      <h2>Busy stretch</h2>
+      <p class="muted small">3+ Tier A/B events starting within 3 weeks of each other, wherever they are: concentrated coverage demand, not a travel plan.</p>
+      ${busy.length ? busy.map((s) => `<div class="flag"><strong>${esc(fmtRange(s.start, s.end))}</strong> · ${s.events.length} A/B events: ${s.events.map((c) => `${tierBadge(c.tier)} <a href="#/conference/${c.id}">${esc(c.name)}</a> (${esc(c.city)}, ${ownerOf(c)})`).join(' · ')}</div>`).join('') : '<p class="muted small">No 3-week period with 3 or more A/B events.</p>'}
     </div>
     <h2>By month</h2>
     <div class="months">${rows}</div><h2>Sample coverage assignments</h2>
