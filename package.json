@@ -1,0 +1,10 @@
+{
+  "name": "grain-conference-intelligence",
+  "private": true,
+  "type": "module",
+  "description": "Conference intelligence prototype for Grain's sales team. Static site + one serverless function.",
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "test": "node --test"
+  }
+}

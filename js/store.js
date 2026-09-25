@@ -1,0 +1,53 @@
+// The workspace: everything a user changes lives in this browser only (a per-browser sandbox).
+// Reference data (data/conferences.csv) and the seed (data/seed.json) come from the repo.
+import { loadConferences } from './scoring.js';
+import { todayReal } from './util.js';
+
+const KEY = 'grain-conference-intel:workspace';
+
+export async function loadStatic() {
+  const [csv, seed] = await Promise.all([
+    fetch('data/conferences.csv', { cache: 'no-cache' }).then((r) => { if (!r.ok) throw new Error('conferences.csv not found'); return r.text(); }),
+    fetch('data/seed.json', { cache: 'no-cache' }).then((r) => { if (!r.ok) throw new Error('seed.json not found'); return r.json(); }),
+  ]);
+  return { ...loadConferences(csv), seed };
+}
+
+export function freshWorkspace(seed) {
+  const copy = JSON.parse(JSON.stringify(seed));
+  return {
+    seedVersion: seed.version,
+    useRealDate: false,
+    currentUser: seed.defaultUser,
+    owners: copy.owners,
+    contacts: copy.contacts,
+    encounters: copy.encounters,
+    aiCache: {},
+  };
+}
+
+// Returns { ws, notice }. A new seed version triggers an offer to reset rather than silently mixing data.
+export function loadWorkspace(seed) {
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); } catch { return { ws: freshWorkspace(seed), notice: 'storage' }; }
+  if (!raw) return { ws: freshWorkspace(seed), notice: null };
+  try {
+    const ws = JSON.parse(raw);
+    if (ws.seedVersion !== seed.version) return { ws, notice: 'seed-changed' };
+    return { ws, notice: null };
+  } catch {
+    return { ws: freshWorkspace(seed), notice: null };
+  }
+}
+
+export function saveWorkspace(ws) {
+  try { localStorage.setItem(KEY, JSON.stringify(ws)); return true; } catch { return false; }
+}
+
+export function clearWorkspace() {
+  try { localStorage.removeItem(KEY); } catch { /* storage unavailable: nothing to clear */ }
+}
+
+export function today(ws, seed) {
+  return ws.useRealDate ? todayReal() : seed.demoDate;
+}

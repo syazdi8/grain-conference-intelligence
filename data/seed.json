@@ -1,0 +1,641 @@
+{
+ "version": 1,
+ "demoDate": "2026-10-19",
+ "defaultUser": "jordan",
+ "note": "All people and companies are fictional. Emails use the reserved .example domain.",
+ "reps": [
+  {
+   "id": "maya",
+   "name": "Maya Cohen",
+   "role": "Sales Lead",
+   "homeBase": "Tel Aviv",
+   "focus": "All segments",
+   "regions": "Global"
+  },
+  {
+   "id": "daniel",
+   "name": "Daniel Brooks",
+   "role": "Account Executive",
+   "homeBase": "London",
+   "focus": "Payment providers, cross-border",
+   "regions": "Europe"
+  },
+  {
+   "id": "noa",
+   "name": "Noa Shapiro",
+   "role": "Account Executive",
+   "homeBase": "Tel Aviv",
+   "focus": "Travel",
+   "regions": "Europe, Middle East, APAC"
+  },
+  {
+   "id": "jordan",
+   "name": "Jordan Ellis",
+   "role": "Account Executive",
+   "homeBase": "New York",
+   "focus": "Payment providers, treasury",
+   "regions": "North America"
+  },
+  {
+   "id": "lukas",
+   "name": "Lukas Weber",
+   "role": "Account Executive",
+   "homeBase": "Berlin",
+   "focus": "Treasury, marketplaces & platforms",
+   "regions": "Europe"
+  },
+  {
+   "id": "sofia",
+   "name": "Sofia Marín",
+   "role": "Business Development Rep",
+   "homeBase": "Barcelona",
+   "focus": "All segments (first meetings)",
+   "regions": "Europe"
+  }
+ ],
+ "owners": {
+  "money2020-usa": "jordan",
+  "iata-wfs": "noa",
+  "afp": "jordan",
+  "fintech-meetup": "jordan",
+  "mpe": "daniel",
+  "money2020-europe": "daniel",
+  "sibos": "maya",
+  "eurofinance": "lukas"
+ },
+ "pastEditions": [
+  {
+   "conferenceId": "money2020-europe",
+   "edition": "2025",
+   "start": "2025-06-03",
+   "end": "2025-06-05",
+   "city": "Amsterdam"
+  },
+  {
+   "conferenceId": "money2020-usa",
+   "edition": "2025",
+   "start": "2025-10-26",
+   "end": "2025-10-29",
+   "city": "Las Vegas"
+  },
+  {
+   "conferenceId": "iata-wfs",
+   "edition": "2025",
+   "start": "2025-11-05",
+   "end": "2025-11-06",
+   "city": "Istanbul"
+  },
+  {
+   "conferenceId": "phocuswright",
+   "edition": "2025",
+   "start": "2025-11-18",
+   "end": "2025-11-20",
+   "city": "San Diego"
+  },
+  {
+   "conferenceId": "itb-berlin",
+   "edition": "2026",
+   "start": "2026-03-03",
+   "end": "2026-03-05",
+   "city": "Berlin"
+  },
+  {
+   "conferenceId": "mpe",
+   "edition": "2026",
+   "start": "2026-03-17",
+   "end": "2026-03-19",
+   "city": "Berlin"
+  },
+  {
+   "conferenceId": "money2020-europe",
+   "edition": "2026",
+   "start": "2026-06-02",
+   "end": "2026-06-04",
+   "city": "Amsterdam"
+  },
+  {
+   "conferenceId": "eurofinance",
+   "edition": "2026",
+   "start": "2026-09-16",
+   "end": "2026-09-18",
+   "city": "Barcelona"
+  }
+ ],
+ "contacts": [
+  {
+   "id": "dana",
+   "name": "Dana Levi",
+   "company": "Quellan Payments",
+   "title": "Head of Partnerships",
+   "email": "dana.levi@quellanpay.example",
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "tom",
+   "name": "Tom Becker",
+   "company": "Arvelo Pay",
+   "title": "Head of Product",
+   "email": "tom.becker@arvelopay.example",
+   "history": [],
+   "override": null,
+   "export": {
+    "date": "2026-06-10",
+    "encounterCount": 3
+   },
+   "aiAction": null
+  },
+  {
+   "id": "priya",
+   "name": "Priya Nair",
+   "company": "Pellwood Beds",
+   "title": "Director of Finance",
+   "email": "priya.nair@pellwoodbeds.example",
+   "history": [],
+   "override": null,
+   "export": {
+    "date": "2026-03-10",
+    "encounterCount": 1
+   },
+   "aiAction": null
+  },
+  {
+   "id": "oliver",
+   "name": "Oliver Grant",
+   "company": "Oriel Travel Exchange",
+   "title": "Chief Commercial Officer",
+   "email": "oliver.grant@orieltravel.example",
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "chris",
+   "name": "Chris Adeyemi",
+   "company": "Sankomo Remit",
+   "title": "Head of Payments",
+   "email": "chris.adeyemi@sankomoremit.example",
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "hannah",
+   "name": "Hannah Morales",
+   "company": "Stallwise",
+   "title": "Treasury Manager",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "ryan",
+   "name": "Ryan Clarke",
+   "company": "Recontix",
+   "title": "Sales Director",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "marco",
+   "name": "Marco Rossi",
+   "company": "Crateline",
+   "title": "Head of Finance",
+   "email": "marco.rossi@crateline.example",
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "nadia",
+   "name": "Nadia Haddad",
+   "company": "Crateline",
+   "title": "Payments Operations Lead",
+   "email": "payments@crateline.example",
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "alex",
+   "name": "Alexander Novak",
+   "company": "Kvetta Pay",
+   "title": "Head of Payments",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "david",
+   "name": "David Katz",
+   "company": "Iberanta Tours",
+   "title": "Revenue Manager",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "sven",
+   "name": "Sven Larsen",
+   "company": "Nordvik Air",
+   "title": "Treasury Director",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "emma",
+   "name": "Emma Walsh",
+   "company": "Ledgerline",
+   "title": "Finance Director",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "grace",
+   "name": "Grace Liu",
+   "company": "Solvenza Travel",
+   "title": "Finance Director",
+   "email": null,
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  },
+  {
+   "id": "johanna",
+   "name": "Johanna Berg",
+   "company": "Halvard Industries",
+   "title": "Assistant Treasurer",
+   "email": "johanna.berg@halvard.example",
+   "history": [],
+   "override": null,
+   "export": null,
+   "aiAction": null
+  }
+ ],
+ "encounters": [
+  {
+   "id": "e01",
+   "contactId": "dana",
+   "conferenceId": "mpe",
+   "edition": "2026",
+   "date": "2026-03-18",
+   "rep": "sofia",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Runs partnerships at Quellan. Their merchants in Poland and Czechia want to charge in local currency, but Quellan doesn't want to carry the FX risk. Asked for a one-pager on rate lock.",
+   "company": "Quellan Payments",
+   "title": "Head of Partnerships"
+  },
+  {
+   "id": "e02",
+   "contactId": "dana",
+   "conferenceId": "money2020-europe",
+   "edition": "2026",
+   "date": "2026-06-03",
+   "rep": "daniel",
+   "outcome": "Next step agreed",
+   "nextStep": {
+    "text": "Intro call with Quellan's payments team",
+    "due": null,
+    "status": "Done",
+    "statusDate": "2026-06-18",
+    "statusNote": null
+   },
+   "note": "Read the one-pager. Wants to test rate lock on PLN and CZK checkout with 2–3 large merchants. The share of the rate-lock fee is what got her CFO's attention.",
+   "company": "Quellan Payments",
+   "title": "Head of Partnerships"
+  },
+  {
+   "id": "e03",
+   "contactId": "tom",
+   "conferenceId": "money2020-europe",
+   "edition": "2025",
+   "date": "2025-06-04",
+   "rep": "daniel",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Curious about rate lock for their e-commerce merchants. \"Send me something.\" No use case or timeline.",
+   "company": "Arvelo Pay",
+   "title": "Head of Product"
+  },
+  {
+   "id": "e04",
+   "contactId": "tom",
+   "conferenceId": "money2020-usa",
+   "edition": "2025",
+   "date": "2025-10-28",
+   "rep": "jordan",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Came by the stand again. General pricing questions; says FX isn't on this year's roadmap.",
+   "company": "Arvelo Pay",
+   "title": "Head of Product"
+  },
+  {
+   "id": "e05",
+   "contactId": "tom",
+   "conferenceId": "money2020-europe",
+   "edition": "2026",
+   "date": "2026-06-04",
+   "rep": "sofia",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Friendly, same conversation as last year. Asked for the deck again; didn't want to set a call. \"Maybe after summer.\"",
+   "company": "Arvelo Pay",
+   "title": "Head of Product"
+  },
+  {
+   "id": "e06",
+   "contactId": "priya",
+   "conferenceId": "itb-berlin",
+   "edition": "2026",
+   "date": "2026-03-04",
+   "rep": "noa",
+   "outcome": "Next step agreed",
+   "nextStep": {
+    "text": "Call with Pellwood's CFO to scope hedging on hotel contracts",
+    "due": null,
+    "status": "Didn't happen",
+    "statusDate": "2026-04-15",
+    "statusNote": "CFO call cancelled twice; no reply since."
+   },
+   "note": "Pellwood pays hotels in EUR, THB and AED but sells to agencies in GBP and USD. Margin moves with the currency between booking and stay. Wants her CFO on a call.",
+   "company": "Pellwood Beds",
+   "title": "Director of Finance"
+  },
+  {
+   "id": "e07",
+   "contactId": "priya",
+   "conferenceId": "eurofinance",
+   "edition": "2026",
+   "date": "2026-09-17",
+   "rep": "lukas",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Still interested in principle, but this year's budget went to their new booking engine. Suggested we check back in Q1.",
+   "company": "Pellwood Beds",
+   "title": "Director of Finance"
+  },
+  {
+   "id": "e08",
+   "contactId": "oliver",
+   "conferenceId": "phocuswright",
+   "edition": "2025",
+   "date": "2025-11-19",
+   "rep": "noa",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Oriel sells hotel inventory to agencies in 30+ countries, priced in local currency. Wants to offer agencies optional rate protection; liked the idea of sharing the premium.",
+   "company": "Oriel Travel Exchange",
+   "title": "Chief Commercial Officer"
+  },
+  {
+   "id": "e09",
+   "contactId": "oliver",
+   "conferenceId": "itb-berlin",
+   "edition": "2026",
+   "date": "2026-03-05",
+   "rep": "noa",
+   "outcome": "Next step agreed",
+   "nextStep": {
+    "text": "Demo for Oriel's CFO and head of product",
+    "due": null,
+    "status": "Done",
+    "statusDate": "2026-05-20",
+    "statusNote": null
+   },
+   "note": "Brought his head of product to the stand. Agencies in Brazil and Turkey are the pain point. Demo after their Q2 release.",
+   "company": "Oriel Travel Exchange",
+   "title": "Chief Commercial Officer"
+  },
+  {
+   "id": "e10",
+   "contactId": "chris",
+   "conferenceId": "money2020-usa",
+   "edition": "2026",
+   "date": "2026-10-18",
+   "rep": "jordan",
+   "outcome": "Next step agreed",
+   "nextStep": {
+    "text": "CFO call",
+    "due": "2026-10-27",
+    "status": "Open",
+    "statusDate": null,
+    "statusNote": null
+   },
+   "note": "Sankomo sends USD to NGN, GHS and KES. FX moves between quote and payout eat their margin. The CFO owns the decision; call set for Tue 27 Oct.",
+   "company": "Sankomo Remit",
+   "title": "Head of Payments"
+  },
+  {
+   "id": "e11",
+   "contactId": "hannah",
+   "conferenceId": "money2020-usa",
+   "edition": "2026",
+   "date": "2026-10-19",
+   "rep": "jordan",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "B2B marketplace for restaurant supplies: US sellers, Mexican buyers. Pays sellers weekly; buyers pay in MXN. Interested; the CFO decides. No card.",
+   "company": "Stallwise",
+   "title": "Treasury Manager"
+  },
+  {
+   "id": "e12",
+   "contactId": "ryan",
+   "conferenceId": "money2020-usa",
+   "edition": "2026",
+   "date": "2026-10-19",
+   "rep": "maya",
+   "outcome": "No clear intent",
+   "nextStep": null,
+   "note": "Vendor pitching us reconciliation software. Not a prospect.",
+   "company": "Recontix",
+   "title": "Sales Director"
+  },
+  {
+   "id": "e13",
+   "contactId": "marco",
+   "conferenceId": "money2020-europe",
+   "edition": "2025",
+   "date": "2025-06-04",
+   "rep": "daniel",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Crateline pays sellers in 20 countries; their bank does the FX at a spread. Interested but \"not a priority this year\".",
+   "company": "Crateline",
+   "title": "Head of Finance"
+  },
+  {
+   "id": "e14",
+   "contactId": "marco",
+   "conferenceId": "mpe",
+   "edition": "2026",
+   "date": "2026-03-18",
+   "rep": "sofia",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Same position. General questions about seller payouts; no timeline.",
+   "company": "Crateline",
+   "title": "Head of Finance"
+  },
+  {
+   "id": "e15",
+   "contactId": "marco",
+   "conferenceId": "eurofinance",
+   "edition": "2026",
+   "date": "2026-09-17",
+   "rep": "lukas",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "A new CFO started in July. Marco says FX cost on seller payouts is now a board topic, and budget for a solution is approved for Q1 2027. He'll send an RFP in November and wants us on the shortlist.",
+   "company": "Crateline",
+   "title": "Head of Finance"
+  },
+  {
+   "id": "e16",
+   "contactId": "nadia",
+   "conferenceId": "money2020-europe",
+   "edition": "2026",
+   "date": "2026-06-03",
+   "rep": "daniel",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Runs seller payouts at Crateline. Gave the team inbox, not her own. Budget decisions sit with Marco.",
+   "company": "Crateline",
+   "title": "Payments Operations Lead"
+  },
+  {
+   "id": "e17",
+   "contactId": "alex",
+   "conferenceId": "mpe",
+   "edition": "2026",
+   "date": "2026-03-19",
+   "rep": "daniel",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "BNPL with instalments in CZK, PLN and HUF; merchants settle in EUR. Currency moves between purchase and the last instalment hit their margin. Planning a US launch; will be at Money20/20 USA in October.",
+   "company": "Kvetta Pay",
+   "title": "Head of Payments"
+  },
+  {
+   "id": "e18",
+   "contactId": "david",
+   "conferenceId": "itb-berlin",
+   "edition": "2026",
+   "date": "2026-03-04",
+   "rep": "noa",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Tour operator selling Spain packages to UK and US agencies. Interested in locking GBP and USD rates at booking.",
+   "company": "Iberanta Tours",
+   "title": "Revenue Manager"
+  },
+  {
+   "id": "e19",
+   "contactId": "sven",
+   "conferenceId": "iata-wfs",
+   "edition": "2025",
+   "date": "2025-11-05",
+   "rep": "noa",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Regional airline selling in NOK, SEK, EUR and GBP. Hedges fuel, not ticket revenue. Asked how cancellations and refunds would be handled.",
+   "company": "Nordvik Air",
+   "title": "Treasury Director"
+  },
+  {
+   "id": "e20",
+   "contactId": "sven",
+   "conferenceId": "itb-berlin",
+   "edition": "2026",
+   "date": "2026-03-05",
+   "rep": "noa",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "Asked for a case study. Said the Q2 planning cycle would decide.",
+   "company": "Nordvik Air",
+   "title": "Treasury Director"
+  },
+  {
+   "id": "e21",
+   "contactId": "emma",
+   "conferenceId": "money2020-usa",
+   "edition": "2025",
+   "date": "2025-10-27",
+   "rep": "jordan",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "",
+   "company": "Ledgerline",
+   "title": "Finance Director"
+  },
+  {
+   "id": "e22",
+   "contactId": "emma",
+   "conferenceId": "money2020-europe",
+   "edition": "2026",
+   "date": "2026-06-02",
+   "rep": "sofia",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "",
+   "company": "Ledgerline",
+   "title": "Finance Director"
+  },
+  {
+   "id": "e23",
+   "contactId": "grace",
+   "conferenceId": "phocuswright",
+   "edition": "2025",
+   "date": "2025-11-20",
+   "rep": "noa",
+   "outcome": "Interested",
+   "nextStep": null,
+   "note": "OTA selling in 9 currencies across Asia-Pacific. Interested in showing rate protection at checkout; wants to revisit after their re-platforming in 2026.",
+   "company": "Solvenza Travel",
+   "title": "Finance Director"
+  },
+  {
+   "id": "e24",
+   "contactId": "johanna",
+   "conferenceId": "eurofinance",
+   "edition": "2026",
+   "date": "2026-09-17",
+   "rep": "lukas",
+   "outcome": "Next step agreed",
+   "nextStep": {
+    "text": "Send indicative hedging-programme pricing to Halvard's treasurer",
+    "due": null,
+    "status": "Open",
+    "statusDate": null,
+    "statusNote": null
+   },
+   "note": "Manufacturer invoicing in 12 currencies; hedges quarterly with two banks. Asked for indicative pricing for their treasurer. We owe them this.",
+   "company": "Halvard Industries",
+   "title": "Assistant Treasurer"
+  }
+ ]
+}
