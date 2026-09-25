@@ -191,10 +191,16 @@ function renderPlan() {
         ${ownerSelect(c.id, 'compact')}
       </div>`).join('') || '<span class="muted small">—</span>'}</div></div>`;
   }).join('');
-  const reps = S.seed.reps.map((r) => {
-    const owned = inW.filter((c) => S.ws.owners[c.id] === r.id);
-    return `<tr><td><strong>${esc(r.name)}</strong><div class="muted small">${esc(r.role)} · ${esc(r.homeBase)}</div></td><td class="small">${esc(r.focus)}<div class="muted">${esc(r.regions)}</div></td><td class="small">${owned.map((c) => `${esc(c.name)} ${esc(c.edition)}`).join(', ') || '<span class="muted">None</span>'}</td></tr>`;
-  }).join('');
+ const reps = S.seed.reps.map((r) => {
+  const owned = inW.filter((c) => S.ws.owners[c.id] === r.id);
+  return `<tr>
+    <td><strong>${esc(r.name)}</strong><div class="muted small">${esc(r.role)} · ${esc(r.homeBase)}</div></td>
+    <td class="small">${esc(r.focus)}<div class="muted">${esc(r.regions)}</div></td>
+    <td class="small">${owned.length
+      ? owned.map((c) => `<div><strong>${esc(c.name)} ${esc(c.edition)}</strong><div class="muted">${esc(fmtRange(c.start, c.end))} · ${esc(c.city)}, ${esc(c.country)}</div></div>`).join('')
+      : '<span class="muted">None</span>'}</td>
+  </tr>`;
+}).join('');
   return `
   <section class="pad">
     <h1>Coverage plan</h1>
@@ -206,10 +212,9 @@ function renderPlan() {
       ${cl.length ? cl.map((x) => `<div class="flag">${tierBadge(x.a.tier)} <a href="#/conference/${x.a.id}">${esc(x.a.name)}</a> (${esc(fmtRange(x.a.start, x.a.end))}, ${S.ws.owners[x.a.id] ? esc(repName(S.ws.owners[x.a.id])) : 'no owner'}) and ${tierBadge(x.b.tier)} <a href="#/conference/${x.b.id}">${esc(x.b.name)}</a> (${esc(fmtRange(x.b.start, x.b.end))}, ${S.ws.owners[x.b.id] ? esc(repName(S.ws.owners[x.b.id])) : 'no owner'}): both in ${esc(x.city)}, ${x.gapDays} days apart.</div>`).join('') : '<p class="muted small">No A/B events in the same city within 14 days.</p>'}
     </div>
     <h2>By month</h2>
-    <div class="months">${rows}</div>
-    <h2>Who covers what</h2>
-    <p class="muted small">Sample team (fictional).</p>
-    <table class="reps"><thead><tr><th>Rep</th><th>Focus</th><th>Owns in the window</th></tr></thead><tbody>${reps}</tbody></table>
+    <div class="months">${rows}</div><h2>Sample coverage assignments</h2>
+<p class="muted small">Fictional sample team. These are seeded examples of assignments made by a sales lead; the prototype does not auto-assign or recommend reps. Availability, visa and other travel constraints are not modeled in this prototype.</p>
+<table class="reps"><thead><tr><th>Rep</th><th>Focus</th><th>Sample assignments in the window</th></tr></thead><tbody>${reps}</tbody></table>
   </section>`;
 }
 
