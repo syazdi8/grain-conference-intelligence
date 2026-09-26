@@ -106,6 +106,7 @@ input[type="checkbox"] { width: auto; }
 .plan-ev { display: flex; flex-wrap: wrap; gap: .35rem .5rem; align-items: center; }
 .tier-row-C { opacity: .7; }
 select.compact { padding: .15rem .3rem; font-size: .8rem; }
+.busy-list { list-style: none; padding: 0; margin: .35rem 0 0; display: grid; gap: .2rem; }
 .reps { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); }
 .reps th, .reps td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
 
@@ -148,11 +149,12 @@ select.compact { padding: .15rem .3rem; font-size: .8rem; }
 .state-head { display: flex; justify-content: space-between; align-items: center; }
 .state-head .state { font-size: .95rem; padding: .2rem .7rem; }
 .reasons { margin: .2rem 0; padding-left: 1.2rem; font-size: .9rem; }
-.override-form { display: grid; gap: .5rem; background: #f7f8fa; border-radius: 8px; padding: .7rem; margin: .5rem 0; }
+.override-form { display: grid; gap: .5rem; background: #f7f8fa; border-radius: 8px; padding: .7rem; margin: .5rem 0; scroll-margin-top: 6rem; }
 .ai { border-color: #c9ddd6; background: #fbfefd; }
 .ai-head { display: flex; gap: .5rem; align-items: baseline; }
 .ai-head .link-btn { margin-left: auto; }
 .disagree { background: #fff1e0; border-left: 4px solid var(--medium); padding: .5rem .7rem; border-radius: 6px; margin: .5rem 0; font-size: .92rem; }
+.disagree-action { margin-top: .45rem; }
 .thin { background: #f1f3f5; padding: .4rem .6rem; border-radius: 6px; margin: .5rem 0; font-size: .9rem; }
 .evidence { padding-left: 1.1rem; font-size: .9rem; }
 .timeline { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--line); }
@@ -162,6 +164,7 @@ select.compact { padding: .15rem .3rem; font-size: .8rem; }
 .step select { padding: .15rem .3rem; font-size: .85rem; margin-left: .3rem; }
 
 @media (max-width: 640px) {
+  .top { position: static; }
   .pad { padding: .8rem; }
   .conf-card { grid-template-columns: auto 1fr; }
   .conf-side { grid-column: 2; text-align: left; display: flex; gap: .8rem; }
@@ -172,6 +175,9 @@ select.compact { padding: .15rem .3rem; font-size: .8rem; }
   .month { grid-template-columns: 1fr; }
   .nextstep { grid-template-columns: 1fr; }
   .contact-row { grid-template-columns: auto 1fr; }
+  .contact-row input { width: 22px; height: 22px; margin-top: .1rem; transform: none; }
+  select.owner.compact { min-height: 36px; padding: .35rem .5rem; }
+  textarea[data-action="ai-action"] { min-height: 7rem; }
   .cr-side { grid-column: 2; text-align: left; max-width: none; }
   .reps td:nth-child(2) { display: none; }
 }

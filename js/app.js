@@ -213,7 +213,7 @@ function renderPlan() {
   return `
   <section class="pad">
     <h1>Coverage plan</h1>
-    <p class="lede">The next 12 months (${esc(fmtDate(w.start))} – ${esc(fmtDate(w.end))}). The flags are prompts for the sales lead, not instructions.</p>
+    <p class="lede">The next 12 months (${esc(fmtDate(w.start))} – ${esc(fmtDate(w.end))}). Flags are prompts for the sales lead.</p>
     <div class="flags">
       <h2>Possible under-investment</h2>
       ${unowned.length ? unowned.map((c) => `<div class="flag flag-a">${tierBadge('A')} <a href="#/conference/${c.id}">${esc(c.name)} ${esc(c.edition)}</a> · ${esc(fmtRange(c.start, c.end))}, ${esc(c.city)}. <strong>High ICP fit, no owner yet.</strong> ${ownerSelect(c.id, 'compact')}</div>`).join('') : '<p class="muted small">Every A-tier event in the window has an owner.</p>'}
@@ -221,8 +221,9 @@ function renderPlan() {
       <p class="muted small">A/B events in the same city within 14 days: travel that could plausibly be combined.</p>
       ${cl.length ? cl.map((x) => `<div class="flag">${tierBadge(x.a.tier)} <a href="#/conference/${x.a.id}">${esc(x.a.name)}</a> (${esc(fmtRange(x.a.start, x.a.end))}, ${S.ws.owners[x.a.id] ? esc(repName(S.ws.owners[x.a.id])) : 'no owner'}) and ${tierBadge(x.b.tier)} <a href="#/conference/${x.b.id}">${esc(x.b.name)}</a> (${esc(fmtRange(x.b.start, x.b.end))}, ${S.ws.owners[x.b.id] ? esc(repName(S.ws.owners[x.b.id])) : 'no owner'}): both in ${esc(x.city)}, ${x.gapDays} days apart.</div>`).join('') : '<p class="muted small">No A/B events in the same city within 14 days.</p>'}
       <h2>Busy stretch</h2>
-      <p class="muted small">3+ Tier A/B events starting in any rolling 3-week window, wherever they are. Overlapping windows are grouped into one busy stretch, so a stretch can run longer than 3 weeks. It shows where coverage demand piles up; it isn't a travel plan.</p>
-      ${busy.length ? busy.map((s) => `<div class="flag"><strong>${esc(fmtRange(s.start, s.end))}</strong> · ${s.events.length} A/B events: ${s.events.map((c) => `${tierBadge(c.tier)} <a href="#/conference/${c.id}">${esc(c.name)}</a> (${esc(c.city)}, ${ownerOf(c)})`).join(' · ')}</div>`).join('') : '<p class="muted small">No rolling 3-week window with 3 or more Tier A/B events.</p>'}
+      <p class="muted small">3+ Tier A/B events starting within any 3-week window, wherever they are. Overlapping windows merge into one stretch, so it can run longer than 3 weeks. Shows when coverage demand concentrates.</p>
+      ${busy.length ? busy.map((s) => `<div class="flag"><strong>${esc(fmtRange(s.start, s.end))}</strong> · ${s.events.length} A/B events
+        <ul class="busy-list">${s.events.map((c) => `<li>${tierBadge(c.tier)} <a href="#/conference/${c.id}">${esc(c.name)}</a> <span class="muted">${esc(c.city)} · ${ownerOf(c)}</span></li>`).join('')}</ul></div>`).join('') : '<p class="muted small">No rolling 3-week window with 3 or more Tier A/B events.</p>'}
     </div>
     <h2>By month</h2>
     <div class="months">${rows}</div><h2>Sample coverage assignments</h2>
@@ -466,7 +467,7 @@ const suggestedOverrideReason =
   <option value="" selected disabled>Choose state…</option>
   ${STATES.filter((s) => s !== v.rule.state).map((s) => `<option>${s}</option>`).join('')}
 </select></label>
-      <label>Reason <input id="ov-reason" value="${esc(suggestedOverrideReason)}" placeholder="Why the rules are wrong here (required)"></label>
+      <label>Reason <textarea id="ov-reason" rows="3" placeholder="Why the rules are wrong here (required)">${esc(suggestedOverrideReason)}</textarea></label>
       <button type="button" class="primary" data-action="override-save" data-id="${c.id}">Save override</button>
       <button type="button" data-action="override-cancel">Cancel</button>
     </div>` : '';
@@ -496,7 +497,7 @@ const suggestedOverrideReason =
     <h2>Timeline <span class="muted small">${v.encs.length} encounter${v.encs.length === 1 ? '' : 's'} · ${new Set(v.encs.map((e) => e.conferenceId)).size} conference${new Set(v.encs.map((e) => e.conferenceId)).size === 1 ? '' : 's'} · ${new Set(v.encs.map((e) => e.rep)).size} rep${new Set(v.encs.map((e) => e.rep)).size === 1 ? '' : 's'}</span></h2>
     <ol class="timeline">${v.encs.slice().reverse().map((e) => `
       <li>
-        <div class="tl-head"><strong>${esc(fmtDate(e.date))}</strong> · ${esc(confName(e))} · ${esc(repName(e.rep))} <span class="outcome-tag">${esc(e.outcome)}</span> <span class="muted small">${esc(e.id)}</span></div>
+        <div class="tl-head"><strong>${esc(fmtDate(e.date))}</strong> · ${esc(confName(e))} · ${esc(repName(e.rep))} <span class="outcome-tag">${esc(e.outcome)}</span></div>
         ${e.company && e.company !== c.company ? `<div class="small muted">At ${esc(e.company)} then</div>` : ''}
         ${e.note ? `<blockquote>${esc(e.note)}</blockquote>` : '<div class="muted small">No note</div>'}
         ${e.nextStep ? `<div class="step small">Next step: <strong>${esc(e.nextStep.text)}</strong>${e.nextStep.due ? ` · due ${esc(fmtDay(e.nextStep.due))}` : ''}
@@ -519,12 +520,13 @@ function aiPanel(c, v) {
   if (cache && cache.sig === sig) {
     const r = cache.result;
     return `<div class="panel ai">${head}
-      ${r.disagreement ? `<div class="disagree"><strong>Notes point a different way from the rules:</strong> ${esc(r.disagreement)} <button type="button" class="link-btn" data-action="override-open" data-id="${c.id}">Review state →</button></div>` : ''}
+      ${r.disagreement ? `<div class="disagree"><strong>Notes point a different way from the rules:</strong> ${esc(r.disagreement)}
+        <div class="disagree-action"><button type="button" data-action="override-open" data-id="${c.id}">Review state →</button></div></div>` : ''}
       ${r.notEnoughInfo ? '<div class="thin">Not enough information to read this relationship yet.</div>' : ''}
       <p>${esc(r.summary)}</p>
       ${r.evidence.length ? `<ul class="evidence">${r.evidence.map((x) => { const e = v.encs.find((y) => y.id === x.encounterId); return `<li><span class="muted small">${esc(fmtDate(e.date))} · ${esc(confName(e))}:</span> ${esc(x.point)}</li>`; }).join('')}</ul>` : ''}
       <label class="field">Suggested next action <span class="muted small">edit it; your version goes into the HubSpot export</span>
-        <textarea data-action="ai-action" data-id="${c.id}" rows="2">${esc(c.aiAction ?? r.suggestedAction)}</textarea></label>
+        <textarea data-action="ai-action" data-id="${c.id}" rows="3">${esc(c.aiAction ?? r.suggestedAction)}</textarea></label>
       <div class="muted small">${esc(r.model)} · ${(r.elapsedMs / 1000).toFixed(1)} s${r.droppedEvidence ? ` · ${r.droppedEvidence} evidence point(s) dropped: they cited encounters this contact doesn't have` : ''}</div>
     </div>`;
   }
@@ -643,7 +645,7 @@ view.addEventListener('click', (ev) => {
     'export-anyway': () => { downloadExport(S.exportIds); render(); },
     'export-cancel': () => { S.exportCheck = null; render(); },
     'export-one': () => startExportOne(el.dataset.id),
-    'override-open': () => { S.overrideFor = el.dataset.id; render(); },
+    'override-open': () => { S.overrideFor = el.dataset.id; render(); document.querySelector('.override-form')?.scrollIntoView({ block: 'nearest' }); },
     'override-cancel': () => { S.overrideFor = null; render(); },
    'override-save': () => {
   const state = document.getElementById('ov-state').value;
